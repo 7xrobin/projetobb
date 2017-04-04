@@ -25,6 +25,7 @@ class Simulator:
         if self.id == -1:
             self.isConnected = False
             raise Exception("Unable to connect to V-REP Server: {}:{}".format(self.host,self.port))
+            print("Connected")
         else:
             self.isConnected = True
     
