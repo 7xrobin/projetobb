@@ -86,10 +86,10 @@ class Robot:
         self.move(0,0)
 
     def __vRToDrive(self, vLinear, vAngular):
-        return (((2*vLinear)+(WHEELS_DIST*vAngular))/2*WHEELS_RAD);
+        return (((2*vLinear)+(WHEELS_DIST*vAngular))/(2*WHEELS_RAD));
     
     def __vLToDrive(self, vLinear, vAngular):
-        return (((2*vLinear)-(WHEELS_DIST*vAngular))/2*WHEELS_RAD);
+        return (((2*vLinear)-(WHEELS_DIST*vAngular))/(2*WHEELS_RAD));
 
     def drive(self, vLinear, vAngular):
         self.move(self.__vLToDrive(vLinear, vAngular), self.__vRToDrive(vLinear, vAngular))    
