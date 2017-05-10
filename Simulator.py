@@ -27,6 +27,7 @@ class Simulator:
             raise Exception("Unable to connect to V-REP Server: {}:{}".format(self.host,self.port))
             print("Connected")
         else:
+            print ('Connected to remote API server')
             self.isConnected = True
     
     def disconnect(self):
@@ -67,7 +68,7 @@ class Simulator:
     
     @connected
     def getObjectOrientation(self, handle):
-        retcode, ret = vrep.simxGetObjectOrientation(self.id, handle, -1, vrep.simx_opmode_streaming)
+        retcode, *ret = vrep.simxGetObjectOrientation(self.id, handle, -1, vrep.simx_opmode_streaming)
         self.__assertSimxSuccessRet(retcode)
         return ret
     
@@ -75,6 +76,11 @@ class Simulator:
     def getJointPosition(self, handle):
         retcode, ret = vrep.simxGetJointPosition(self.id, handle, vrep.simx_opmode_streaming)
         self.__assertSimxSuccessRet(retcode)
+        return ret
+
+    @connected
+    def getCmdTime(self):
+        ret = vrep.simxGetLastCmdTime(self.id)
         return ret
 
     @connected

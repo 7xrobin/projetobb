@@ -6,15 +6,18 @@ WHEELS_DIST = 0.381
 WHEELS_RAD =  0.0975
 
 class Robot:
-    def __init__(self, simulator: Simulator, name: str):
+    def __init__(self, simulator, name):
         self.name = name
         self.sim = simulator    
         
         self.velocity = [1] * 2
-        self.encoder = [0] * 2
-        self.lastEncoder = [0] * 2
         self.sonarReading = [None] * NUM_SONARS
 
+        #Encoder
+        self.encoder = [0] * 2
+        self.lastTimeRead = 0.0
+        self.encoderReadTime = 0.0
+ 
         # Position
         self.position = [0] * 3
         self.lastPosition = [0] * 3
@@ -26,6 +29,7 @@ class Robot:
         self.encoderHandle = [None] * 2
         self.motorHandle = [None] * 2
         self.sonarHandle = [None] * NUM_SONARS
+
 
         # Encoder handle
         self.encoderHandle[0] = self.sim.getHandle("Pioneer_p3dx_leftWheel");
@@ -56,13 +60,14 @@ class Robot:
             else:
                 self.sonarReading[i] = -1
         
-        self.lastEncoder[0] = self.encoder[0]
-        self.lastEncoder[1] = self.encoder[1]
+       
+    def updateEncoder(self):
 
-        #TODO: should we really use motorHandle? Shouldn't it be encoderHandle?
         self.encoder[0] = self.sim.getJointPosition(self.motorHandle[0])
         self.encoder[1] = self.sim.getJointPosition(self.motorHandle[1])
 
+        self.encoderReadTime = self.sim.getCmdTime()
+        
     def updatePose(self):
         self.lastPosition = self.position[:]
         self.lastOrientation = self.orientation
@@ -73,6 +78,7 @@ class Robot:
     def update(self):
         self.updateSensors()
         self.updatePose()
+        self.updateEncoder()
     
     def driveAndupdate(self):
         self.drive(10,5)

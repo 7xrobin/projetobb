@@ -1,4 +1,5 @@
 from Robot import Robot
+from OdometryRobot import OdometryRobot
 from ObjectDetectionListener import IObjectDetectionListener
 from ObjectDetectionListener import DetectedObject
 from PositionListener import IPositionListener
@@ -9,19 +10,22 @@ import math
 
 
 class RobotMonitor(threading.Thread):
-    def __init__(self, robot: Robot, stopEvent: threading.Event, intervalMs=200):
+    def __init__(self, robot: Robot, odomo: OdometryRobot, stopEvent: threading.Event, intervalMs=200):
         threading.Thread.__init__(self)
         self.robot = robot
         self.intervalSeconds = intervalMs/1000
         self.stopEvent = stopEvent
         self.frontObjDetecListeners = []
         self.positionListeners = []
+        # self.encoderListeners = []
+        self.odometryCalculator = odomo
 
     def run(self):
         while not self.stopEvent.is_set():
             self.robot.update()
             self.readPosition()   
             self.readSonarReadings()  
+            self.updateOdometry()  
             sleep(self.intervalSeconds)
 
     def readSonarReadings(self):
@@ -39,6 +43,9 @@ class RobotMonitor(threading.Thread):
                 detectedObjs.append(DetectedObject(self.robot.sonarReading[i], angles[i], i))
 
         self.__frontObjectDetected(detectedObjs)
+   
+    def updateOdometry(self):
+         self.odometryCalculator.newAngularPosition()
 
     def readPosition(self):
         if (self.robot.lastPosition != self.robot.position or 
@@ -50,6 +57,9 @@ class RobotMonitor(threading.Thread):
     
     def subscribeChangePosition(self, listener: IPositionListener):
         self.positionListeners.append(listener)
+
+    # def subscribeEncoder(self, listener: IEncoderListener):
+    #     self.encoderListeners.append(listener)
 
     def __frontObjectDetected(self, detectedObjs: List[DetectedObject]):
         for l in self.frontObjDetecListeners:
